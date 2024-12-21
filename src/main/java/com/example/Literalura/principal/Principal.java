@@ -7,6 +7,7 @@ import com.example.Literalura.service.ConsumoApi;
 import com.example.Literalura.service.ConverteDados;
 import com.example.Literalura.service.IConverteDados;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -69,11 +70,38 @@ public class Principal {
     }
 
     private DadosResult getDadosResult(){
-        System.out.println("Qual titulo deseja para buscar?");
-        var titulo = leitura.nextLine();
-        var json = consumo.obterDados(ENDERECO+titulo.replace(" ", "%20"));
-        DadosResult dados = conversor.obterDados(json, DadosResult.class);
-        return dados;
+        try {
+            System.out.println("Qual título deseja para buscar?");
+            var titulo = leitura.nextLine();
+
+            // Substituir espaços por "%20" para a URL
+            var json = consumo.obterDados(ENDERECO + titulo.replace(" ", "%20"));
+
+            // Verificar se o JSON retornado não está vazio
+            if (json == null || json.isEmpty()) {
+                System.err.println("Nenhum dado encontrado para o título fornecido.");
+                e;
+            }
+
+            // Converter o JSON em objeto DadosResult
+            DadosResult dados = conversor.obterDados(json, DadosResult.class);
+
+            // Verificar se os dados foram processados corretamente (exemplo de lista vazia)
+            if (dados == null) {
+                System.err.println("A resposta da API não contém dados.");
+                exibeMenu();
+            }
+
+            return dados;
+
+        } catch (Exception e) {
+            // Exceção genérica para outros problemas
+            System.err.println("Ocorreu um erro inesperado: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        // Retornar nulo ou um valor padrão em caso de erro
+        return null;
     }
 
     private void buscarTitulo(){
@@ -94,11 +122,13 @@ public class Principal {
     private void buscarLivros(){
         List<Livro> registrados = repositorio.findAll();
         registrados.forEach(System.out::println);
+        exibeMenu();
     }
 
     private void listarAutores() {
         List<Autor> autores = autorRepository.findAll();
         autores.forEach(System.out::println);
+        exibeMenu();
     }
 
     private void buscarAutoresVivosEmAno() {
@@ -107,6 +137,7 @@ public class Principal {
         List<Autor> vivos = autorRepository.buscarAutorPorAno(ano);
         if (vivos.isEmpty()){
             System.out.println("Nao tem (no nosso banco) autor vivo nesse ano");
+            exibeMenu();
         }else {
             vivos.forEach(System.out::println);
         }
@@ -125,6 +156,7 @@ public class Principal {
         List<Livro> livros = repositorio.buscarLivrosPorIdioma(List.of(lingua));
         if (livros.isEmpty()){
             System.out.println("Nao tem livros");
+            exibeMenu();
         }else {
         livros.forEach(System.out::println);
         }
