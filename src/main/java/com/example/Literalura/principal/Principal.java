@@ -80,7 +80,6 @@ public class Principal {
             // Verificar se o JSON retornado não está vazio
             if (json == null || json.isEmpty()) {
                 System.err.println("Nenhum dado encontrado para o título fornecido.");
-                e;
             }
 
             // Converter o JSON em objeto DadosResult
